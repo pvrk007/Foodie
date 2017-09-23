@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Menu</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<!--   <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"> -->
+<!--  <link rel="stylesheet" type="text/css" href="addFont.css" /> -->
+<!-- <script src=”js/bootstrap.min.js”></script> -->
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script> 
+<style>
+#menu {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+#menu td, #menu th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+#menu tr:nth-child(even){background-color: #f2f2f2;}
+
+#menu tr:hover {background-color: #ddd;}
+
+#menu th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #4CAF50;
+    color: white;
+}
+</style>
+</head>
+
+<body>
+<script type="text/javascript">
+
+ var xMLHttpRequest = new XMLHttpRequest();
+ var request=new XMLHttpRequest();
+ var total=0;
+ var item;
+ var itemPrice;
+ function myFunction() {
+	 request.open("Get","/Foodie/cart?loadcart", true);
+	 request.onreadystatechange = loadCart;
+	 request.send(null);
+	}
+ var loadCart = function(){
+	 if(request.readyState==4 && request.status==200){
+		 var node = document.createElement("TR");
+		 var orders=request.responseText;
+		 var fields=orders.split(" ");
+		 var text="";
+		 var i=0;
+		 for(i=0;i<fields.length-1;i++)
+	     {
+		 text += fields[i] +" "+fields[i+1]+"<br>";
+		 var a=parseInt(fields[i+1]);
+		 total=total+a;
+		 i++;
+		 
+		 document.getElementById("addedItem").innerHTML = text;
+		 document.getElementById("pricedata").innerHTML = total;
+	     }	 
+	 }
+ }
+ function addItem(id, itemprice){
+	xMLHttpRequest.open("Get","/Foodie/cart?food="+ id+"&price="+itemprice, true);
+  	xMLHttpRequest.onreadystatechange = processFood;
+  	item = id;
+  	itemPrice = itemprice;
+ 	xMLHttpRequest.send(null);
+ }
+  var processFood = function () {
+		if (xMLHttpRequest.readyState == 4 && xMLHttpRequest.status == 200){
+  			var node = document.createElement("TR");                 // Create a <li> node
+  			var textnode = document.createTextNode (item + " " + itemPrice);         // Create a text node
+  			total = total + itemPrice;
+  			node.appendChild(textnode);                    // Append the text to <li>
+  			document.getElementById("addedItem").appendChild(node);
+  			document.getElementById("pricedata").innerHTML = total;
+  			console.log("food added in database");
+  		    }
+}
+  function orderNow(id, itemprice){
+		xMLHttpRequest.open("Post","/Foodie/order", true);
+	  	xMLHttpRequest.onreadystatechange = paymentPage;
+	 	xMLHttpRequest.send(null);
+         }
+var paymentPage = function(){
+	window.location="/Foodie/menu.html";
+	  console.log ("Flushed to database");
+}
+
+</script>
+<body onload="myFunction()">
+<div id="menu" class="container-fluid col-lg-7">
+  <div style="background-color:blue">Menu </div>
+  <br>
+<table>
+  <tr>
+   <td/> <input type="submit" value="Pizza" onclick="addItem('Pizza',10);"> 
+   <td id="pPrice" align="right"> 10$</td>
+  </tr>
+  <tr>
+     <td/> <input type="submit" value="Fried Rice" onclick="addItem('FriedRice',5);"> 
+  <td id="fPrice" align="right"> 5$</td>
+</tr>
+<tr>
+   <td/> <input type="submit" value="Chinese" onclick="addItem('Chinese',15);"> 
+   <td id="cPrice" align="right"> 15$</td>
+  </tr>
+  <tr>
+     <td/> <input type="submit" value="Curry" onclick="addItem('Curry',6);"> 
+  <td id="cuPrice" align="right"> 6$</td>
+  </tr>
+  <tr>
+     <td/> <input type="submit" value="Rice" onclick="addItem('Rice',3);"> 
+  <td id="rPrice" align="right"> 3$</td>
+</tr>
+<tr>
+   <td/> <input type="submit" value="Chicken" onclick="addItem('Chicken',7);"> 
+  <td id="chPrice" align="right"> 7$</td>
+  </tr>
+  <tr>
+     <td/> <input type="submit" value="Mutton" onclick="addItem('Mutton',12.5);"> 
+  <td id="MPrice" align="right"> 12.5$</td>
+</tr>
+  </table>
+</div>
+ 
+<div id="cart" class="container-fluid col-lg-5">
+  <div style="background-color:blue">Cart</div>
+  
+  <table id="addedItem">
+  <tr> <td><br></td></tr>
+  </table>
+  <table id="totalprice">
+  <tr>
+  <td>Total  </td>
+  <td id="pricedata">  0</td>
+  </tr>
+  </table>
+  <table id="load">
+  <tr>
+  <td id="cartload"></td>
+  </table>
+</div> 
+<button type="submit" onclick="orderNow();">Order now</button>
+</body>
+</html>

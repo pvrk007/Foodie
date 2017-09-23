@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>user</title>
+</head>
+<script type="text/javascript">
+
+ var xMLHttpReques = new XMLHttpRequest();
+ var reques=new XMLHttpRequest();
+ function myFunction() {
+	 reques.open("Get","/Foodie/loadhistory", true);
+	 reques.onreadystatechange = loadhistory;
+	 reques.send(null);
+	}
+ var loadhistory = function(){
+	 if(reques.readyState==4 && reques.status==200){
+		 var node = document.createElement("TR");
+		 var orders=reques.responseText;
+		 var fields=orders.split(" ");
+		 var text="";
+		 var i=0;
+		 for(i=0;i<fields.length-1;i++)
+	     {
+		 text += fields[i] +" "+fields[i+1]+"<br>";
+		 i++;
+		 document.getElementById("addedItem").innerHTML = text;
+		 
+	     }	 
+	 }
+ }
+function findRestaurant(){
+	xMLHttpReques.open("Get","/Foodie/YelpAPI?search="+ document.getElementById("search").value+"&location="+ document.getElementById("location").value, true);
+ 	xMLHttpReques.onreadystatechange = processRestaurant;
+	xMLHttpReques.send(null);
+}
+var processRestaurant = function () {
+	if (xMLHttpReques.readyState == 4 && xMLHttpReques.status == 200){
+			var restObj = eval('(' + xMLHttpReques.responseText +')');
+			console.log(restObj);
+			if (typeof (Storage) != "undefined"){
+				localStorage.setItem ("restJson", JSON.stringify(restObj));
+				window.location = "/Foodie/restaurantList.html";
+			}
+			else
+				document.write("Error");
+	}
+}
+</script>
+<body onload="myFunction()">
+  <h2>Enter type of Food:</h2><br>
+  <input type="text" id="search"><br>
+   <h2>Enter Your Location:</h2><br>
+  <input type="text" id="location" required><br>
+  <input type="submit" value="Submit" onclick='findRestaurant();'>
+<div id="cart" class="container-fluid col-lg-5">
+  <div style="background-color:blue">Cart</div>
+  <table id="addedItem">
+  <tr> <td><br></td></tr>
+  </table>
+  </div> 
+</body>
+</html>
